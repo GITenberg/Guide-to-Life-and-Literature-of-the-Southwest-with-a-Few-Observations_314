@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: V/4s48+bQCOianDtNGIMpuiwvjRfD9c0Avx55wPtBDqJ42Acf3GigatVWOEkAEf86PMc/QQDQcigDVSrYLo7GnSNyjk5PJrCo+93mz9oXnC0KHkizICYECXKEE4oU/UoPXlVbs7bNCiCmmGB+GSmcdd514mHFYMkeT2O2fFeaKDWpkMkr+zP2OImy1qZ0iWyx7TesMZ42RU31/edQO4NwqCsTlVLaHMc7lcR9W/03k5A73e8yoLWQnaDP4J/F+yuWZQpyVL1n2NokNmHqJBcuoZRqRouCE0nSz5NcP711ZaZhkGMlsNLdbjvxsLsBshRhEfuZQCoHkTDPtxXPaJ+asdu5g1KNdg5+5n+w7xKjKJ5FKK54xQYQYEkTHONi9SmXNYZgmQKdG+3tT2PZJE/zN8oF8ooaBsCCTeZaf+/5GNN6o471XKIDW6z2A4X38SH/6/oyGJ8XjtuO6L/vvMNNLvb5LeWXE5cpF9OyvocD/ptYEGGyPC13y0UN5RxD3EC++6HtS1ejL1E1ea+iudlOmMwpa3bL6twRl8F1DRLg5tMNBApRFvndBfYMsrCW1nhaxV3uCmZInKqSOB3/ZPEIDnElRSlyARy4KkOCtABj8nOTyVHfI8lUPXEbkoyjSpP8vO9M4DrUDygQd01wnDmeQM+CMxlfRWQE31/epvOUyY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Guide-to-Life-and-Literature-of-the-Southwest-with-a-Few-Observations_314
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
